@@ -184,6 +184,10 @@ private class MockAPIClient: SolanaAPIClient {
         return BufferInfo<T>(lamports: lamports, owner: owner, data: data, executable: executable, rentEpoch: rentEpoch)
     }
 
+    func getFeeForMessage(message _: String, commitment _: Commitment?) async throws -> FeeForMessage {
+        5000
+    }
+
     func getFees(commitment _: Commitment?) async throws -> Fee {
         let blockhash: String
         let lastValidSlot: UInt64
@@ -240,6 +244,10 @@ private class MockAPIClient: SolanaAPIClient {
         default:
             fatalError()
         }
+    }
+
+    func getLatestBlockhash(commitment: Commitment?) async throws -> String {
+        try await getRecentBlockhash(commitment: commitment)
     }
 
     func getMinimumBalanceForRentExemption(dataLength _: UInt64, commitment _: Commitment?) async throws -> UInt64 {
