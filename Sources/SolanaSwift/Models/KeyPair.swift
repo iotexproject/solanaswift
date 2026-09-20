@@ -131,7 +131,7 @@ public struct KeyPair: Codable, Hashable {
             mnemonic = try Mnemonic(phrase: phrase)
         } else {
             // change from 12-words to 24-words (128 to 256)
-            mnemonic = Mnemonic()
+            mnemonic = try Mnemonic()
             phrase = mnemonic.phrase
         }
 
@@ -184,7 +184,7 @@ public struct KeyPair: Codable, Hashable {
             mnemonic = try Mnemonic(phrase: phrase)
         } else {
             // change from 12-words to 24-words (128 to 256)
-            mnemonic = Mnemonic()
+            mnemonic = try Mnemonic()
             phrase = mnemonic.phrase
         }
 

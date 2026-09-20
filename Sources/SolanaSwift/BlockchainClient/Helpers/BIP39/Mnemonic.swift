@@ -1,16 +1,32 @@
 import CommonCrypto
 import Foundation
+import Security
 
 public class Mnemonic {
     public let phrase: [String]
     let passphrase: String
 
-    public init(strength: Int = 256, wordlist: [String] = Wordlists.english) {
-        precondition(strength % 32 == 0, "Invalid entropy")
+    public convenience init(strength: Int = 256, wordlist: [String] = Wordlists.english) throws {
+        try self.init(strength: strength, wordlist: wordlist) { bytes in
+            SecRandomCopyBytes(kSecRandomDefault, bytes.count, &bytes)
+        }
+    }
+
+    init(
+        strength: Int,
+        wordlist: [String] = Wordlists.english,
+        fillRandomBytes: (inout [UInt8]) -> OSStatus
+    ) throws {
+        guard strength > 0, strength % 32 == 0 else {
+            throw MnemonicError.invalidStrength
+        }
 
         // 1.Random Bytes
-        var bytes = [UInt8](repeating: 0, count: strength / 8)
-        _ = SecRandomCopyBytes(kSecRandomDefault, bytes.count, &bytes)
+        let byteCount = strength / 8
+        var bytes = [UInt8](repeating: 0, count: byteCount)
+        guard fillRandomBytes(&bytes) == errSecSuccess, bytes.count == byteCount else {
+            throw MnemonicError.entropyUnavailable
+        }
 
         // 2.Entropy -> Mnemonic
         let entropyBits = String(bytes.flatMap { ("00000000" + String($0, radix: 2)).suffix(8) })
